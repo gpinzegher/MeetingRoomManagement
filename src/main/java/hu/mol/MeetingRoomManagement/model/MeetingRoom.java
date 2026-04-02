@@ -39,4 +39,8 @@ public class MeetingRoom {
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
+
+    public Long getId() {
+        return id;
+    }
 }

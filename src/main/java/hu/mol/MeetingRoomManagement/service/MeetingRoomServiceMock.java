@@ -10,26 +10,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@ConditionalOnProperty(name = "app.mock.enabled", havingValue = "false")
+@ConditionalOnProperty(name = "app.mock.enabled", havingValue = "true")
 @Service
-public class MeetingRoomService implements MeetingRoomServiceInt {
+public class MeetingRoomServiceMock implements MeetingRoomServiceInt {
 
-    private final MeetingRoomRepository repository;
+    private final MeetingRoom meetingRoom = new MeetingRoom("Mock Room 1", 10);
+    private final MeetingRoomResponseDTO response = new MeetingRoomResponseDTO(1L,"Mock Room 1", 10);
 
-    public MeetingRoomService(MeetingRoomRepository repository) {
-        this.repository = repository;
-    }
+    public MeetingRoomServiceMock() {}
 
-    @Transactional
     public MeetingRoomResponseDTO createMeetingRoom(String name, int capacity) {
-        String normalizedName = normalizeRoomName(name);
-
-        if (repository.existsByRoomNameIgnoreCase(normalizedName)) {
-            throw new ConflictException("Meeting room with name '%s' already exists.".formatted(normalizedName));
-        }
-
-        MeetingRoom meetingRoom = repository.save(new MeetingRoom(normalizedName, capacity));
-        return MeetingRoomResponseDTO.from(meetingRoom);
+        return response;
     }
 
     private String normalizeRoomName(String roomName) {
@@ -39,13 +30,8 @@ public class MeetingRoomService implements MeetingRoomServiceInt {
         return roomName.trim();
     }
 
-    @Transactional(readOnly = true)
     public MeetingRoom findByNameOrThrow(String roomName) {
         String normalizedName = normalizeRoomName(roomName);
-
-        return repository.findByRoomNameIgnoreCase(normalizedName)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Meeting room with name '%s' was not found.".formatted(normalizedName)
-                ));
+        return meetingRoom;
     }
 }
